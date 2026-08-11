@@ -45,6 +45,9 @@ import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.DisableCachingByDefault;
+import org.gradle.jvm.toolchain.JavaCompiler;
+import org.gradle.jvm.toolchain.JavaLanguageVersion;
+import org.gradle.jvm.toolchain.JavaToolchainService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
@@ -88,20 +91,29 @@ public class TaskRecompileMc extends CachedTask
         AntBuilder ant = CreateStartTask.setupAnt(this);
         getExtPath();
         // recompile
-        ant.invokeMethod("javac",
-            ImmutableMap.builder()
-                .put("srcDir", tempSrc.getCanonicalPath())
-                .put("destDir", tempCls.getCanonicalPath())
-                .put("failonerror", true)
-                .put("includeantruntime", false)
-                .put("classpath", getProject().getConfigurations().getByName(classpath).getAsPath())
-                .put("encoding", "utf-8")
-                .put("source", "1.8")
-                .put("target", "1.8")
-                .put("debug", "true")
-                //.put("Djava.ext.dirs", )
-                .build()
-        );
+        ImmutableMap.Builder<String, Object> javacArgs = ImmutableMap.builder();
+        javacArgs
+            .put("srcDir", tempSrc.getCanonicalPath())
+            .put("destDir", tempCls.getCanonicalPath())
+            .put("failonerror", true)
+            .put("includeantruntime", false)
+            .put("classpath", getProject().getConfigurations().getByName(classpath).getAsPath())
+            .put("encoding", "utf-8")
+            .put("source", "1.8")
+            .put("target", "1.8")
+            .put("debug", "true");
+
+        //Увы, эта тулза не совместима с jdk17+, потому ищем jdk8 и запускаем через нее
+        String java8Javac = getJava8JavacExecutable();
+        if (java8Javac != null) {
+            javacArgs
+                .put("fork", true)
+                .put("executable", java8Javac);
+        } else {
+            getLogger().warn("Java 8 toolchain is unavailable; falling back to the current javac for recompileMc.");
+        }
+
+        ant.invokeMethod("javac", javacArgs.build());
 
         outJar.getParentFile().mkdirs();
         createOutput(outJar, inJar, tempCls, getInResources());
@@ -131,6 +143,17 @@ public class TaskRecompileMc extends CachedTask
             System.setProperty("java.ext.dirs", newExtDirs);
         }
         return newExtDirs;
+    }
+
+    private String getJava8JavacExecutable()
+    {
+        try {
+            JavaToolchainService toolchains = getProject().getExtensions().getByType(JavaToolchainService.class);
+            JavaCompiler compiler = toolchains.compilerFor(spec -> spec.getLanguageVersion().set(JavaLanguageVersion.of(8))).get();
+            return compiler.getExecutablePath().getAsFile().getAbsolutePath();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static void extractSources(File tempDir, File inJar) throws IOException

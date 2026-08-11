@@ -45,8 +45,6 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
-import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.Configuration.State;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
@@ -57,7 +55,6 @@ import org.gradle.api.initialization.dsl.ScriptHandler;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
-import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Delete;
 import org.gradle.testfixtures.ProjectBuilder;
 
@@ -98,6 +95,7 @@ import net.minecraftforge.gradle.util.json.fgversion.FGBuildStatus;
 import net.minecraftforge.gradle.util.json.fgversion.FGVersion;
 import net.minecraftforge.gradle.util.json.fgversion.FGVersionWrapper;
 import net.minecraftforge.gradle.util.json.version.Version;
+
 public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Project>
 {
     private static final Logger LOGGER = Logging.getLogger(BasePlugin.class);
@@ -437,16 +435,9 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             LOGGER.warn("Missing FG dep in buildscript classpath. Forking decompilation is likely to break.");
             return;
         }
-        // This adds all of the dependencies of FG
-        Set<File> fgFiles = new HashSet<>();
-        for (ResolvedArtifact artifact : buildscriptClasspath.getResolvedConfiguration().getResolvedArtifacts()) {
-            ModuleVersionIdentifier id = artifact.getModuleVersion().getId();
-            if (fgDep.getGroup().equals(id.getGroup()) &&
-                fgDep.getName().equals(id.getName()) &&
-                fgDep.getVersion().equals(id.getVersion())) {
-                fgFiles.add(artifact.getFile());
-            }
-        }
+        // This adds the full resolved buildscript classpath so the forked FernFlower JVM sees
+        // the same runtime dependencies as the plugin itself.
+        Set<File> fgFiles = new HashSet<>(buildscriptClasspath.getFiles());
         deps.add(CONFIG_FFI_DEPS, project.files(fgFiles));
         // And this adds the groovy dep. FFI shouldn't need Gradle.
         deps.add(CONFIG_FFI_DEPS, deps.localGroovy());

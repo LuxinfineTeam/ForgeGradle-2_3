@@ -40,6 +40,9 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.DisableCachingByDefault;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaExecSpec;
+import org.gradle.jvm.toolchain.JavaLanguageVersion;
+import org.gradle.jvm.toolchain.JavaLauncher;
+import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
@@ -81,7 +84,6 @@ public class ApplyFernFlowerTask extends CachedTask {
         mapOptions.put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1");
         mapOptions.put(IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1");
         mapOptions.put(IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1");
-        mapOptions.put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1");
         mapOptions.put(IFernflowerPreferences.REMOVE_SYNTHETIC, "1");
         mapOptions.put(IFernflowerPreferences.REMOVE_BRIDGE, "1");
         mapOptions.put(IFernflowerPreferences.LITERALS_AS_IS, "0");
@@ -98,22 +100,15 @@ public class ApplyFernFlowerTask extends CachedTask {
 
     private void runFernFlower(FernFlowerSettings settings) throws IOException
     {
-        // forking allowed if the property is not present or it is "true" ("true" is the default)
-        boolean forkAllowed = !getProject().hasProperty(FORK_FLAG) || Boolean.parseBoolean(getProject().property(FORK_FLAG).toString());
-        if (!forkAllowed || Runtime.getRuntime().maxMemory() >= REQUIRED_MEMORY) {
-            // no fork, either not allowed or memory is OK
-            FernFlowerInvoker.runFernFlower(settings);
-        } else {
-            // put this in the info logs, but day-to-day use doesn't need to see it
-            getLogger().info("Note: " + Constants.GROUP_FG + " is forking a new process to run decompilation.");
-            getLogger().debug("Settings: {}", settings);
-            final File data = File.createTempFile("fg-fernflowersettings", ".ser");
-            try {
-                writeSettings(settings, data);
-                runForkedFernFlower(data);
-            } finally {
-                data.delete();
-            }
+        //К сожалению, версия fernflower из зависимостей не совместима с jdk17+, а обновить декомпилятор нельзя,
+        //это приводит к ошибкам при применении MCP патчей, т.к. те жестко привязаны к результатам декомпиляции именно этой версии fernflower.
+        //Потому просто запускаем подпроцессом с JDK8
+        final File data = File.createTempFile("fg-fernflowersettings", ".ser");
+        try {
+            writeSettings(settings, data);
+            runForkedFernFlower(data);
+        } finally {
+            data.delete();
         }
     }
 
@@ -143,6 +138,9 @@ public class ApplyFernFlowerTask extends CachedTask {
             @Override
             public void execute(JavaExecSpec exec)
             {
+                JavaToolchainService toolchains = getProject().getExtensions().getByType(JavaToolchainService.class);
+                JavaLauncher launcher = toolchains.launcherFor(spec -> spec.getLanguageVersion().set(JavaLanguageVersion.of(8))).get();
+                exec.setExecutable(launcher.getExecutablePath().getAsFile().getAbsolutePath());
                 exec.classpath(forkedClasspath);
                 JavaExecSpecHelper.setMainClass(exec, FernFlowerInvoker.class.getName());
                 exec.setJvmArgs(ImmutableList.of("-Xmx3G"));
