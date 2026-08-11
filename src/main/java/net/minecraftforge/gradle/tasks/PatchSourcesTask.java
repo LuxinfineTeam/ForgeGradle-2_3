@@ -44,6 +44,9 @@ import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.cloudbees.diff.PatchException;
 import com.google.common.base.Charsets;
@@ -51,6 +54,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "Abstract base class delegates caching to subclasses")
 public class PatchSourcesTask extends AbstractEditJarTask
 {
     /*
@@ -339,6 +343,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
 
     @Optional
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     public File getPatchesDir()
     {
         File patch = getPatches();
@@ -350,6 +355,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
 
     @Optional
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     public File getPatchesZip()
     {
         File patch = getPatches();
@@ -371,6 +377,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public FileCollection getInjects()
     {
         return getProject().files(injects);

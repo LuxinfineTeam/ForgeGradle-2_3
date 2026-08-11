@@ -39,7 +39,10 @@ import java.util.zip.ZipOutputStream;
 
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -62,12 +65,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class MergeJars extends CachedTask
 {
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     private Object                client;
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     private Object                server;
 
     @OutputFile

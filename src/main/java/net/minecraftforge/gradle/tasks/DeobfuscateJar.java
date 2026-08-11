@@ -44,7 +44,10 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -70,25 +73,32 @@ import net.minecraftforge.gradle.util.json.JsonFactory;
 import net.minecraftforge.gradle.util.json.MCInjectorStruct;
 import net.minecraftforge.gradle.util.json.MCInjectorStruct.InnerClass;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class DeobfuscateJar extends CachedTask
 {
     @InputFile
     @Optional
+    @PathSensitive(PathSensitivity.NONE)
     private Object            fieldCsv;
     @InputFile
     @Optional
+    @PathSensitive(PathSensitivity.NONE)
     private Object            methodCsv;
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     private Object            inJar;
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object            srg;
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object            exceptorCfg;
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object            exceptorJson;
 
     @Input
@@ -100,6 +110,7 @@ public class DeobfuscateJar extends CachedTask
     private Object            outJar;
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     private ArrayList<Object> ats           = Lists.newArrayList();
 
     private Object            log;

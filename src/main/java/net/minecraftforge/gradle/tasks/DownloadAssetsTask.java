@@ -45,12 +45,16 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "Downloads external assets dynamically")
 public class DownloadAssetsTask extends DefaultTask
 {
     DelayedFile           assetsDir;
@@ -114,6 +118,7 @@ public class DownloadAssetsTask extends DefaultTask
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public File getAssetsIndex()
     {
         return assetIndex.call();

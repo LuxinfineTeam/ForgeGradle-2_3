@@ -67,7 +67,8 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
     @Override
     public void projectsLoaded(Gradle arg0) {}
 
-    @Override
+    // Note: buildStarted was removed from BuildListener in Gradle 9.0+
+    // Keeping method for compatibility but without @Override
     public void buildStarted(Gradle arg0) {}
 
     @Override

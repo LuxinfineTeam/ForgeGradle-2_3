@@ -33,8 +33,9 @@ import groovy.lang.Closure;
 import net.minecraftforge.gradle.common.BaseExtension;
 import net.minecraftforge.gradle.common.Constants;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 
 public class UserBaseExtension extends BaseExtension
 {
@@ -411,8 +412,8 @@ public class UserBaseExtension extends BaseExtension
             return (SourceSet) obj;
         else {
             String name = obj.toString();
-            JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
-            return javaConv.getSourceSets().getByName(name);
+            JavaPluginExtension javaExt = project.getExtensions().getByType(JavaPluginExtension.class);
+            return javaExt.getSourceSets().getByName(name);
         }
     }
 
@@ -426,8 +427,8 @@ public class UserBaseExtension extends BaseExtension
             set = (SourceSet) obj;
         else if (obj instanceof String)
         {
-            JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
-            set = javaConv.getSourceSets().findByName((String) obj);
+            JavaPluginExtension javaExt = project.getExtensions().getByType(JavaPluginExtension.class);
+            set = javaExt.getSourceSets().findByName((String) obj);
         }
 
         return (set != null) ? set.getResources() : obj;

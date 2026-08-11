@@ -20,14 +20,12 @@ plugins {
     `java-gradle-plugin`
 }
 
-apply(plugin = "license")
-
 group = "com.anatawa12.forge"
 
 version = "2.3-${property("version")!!}"
 
 base {
-    archivesBaseName = "ForgeGradle"
+    archivesName.set("ForgeGradle")
 }
 java {
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -43,7 +41,6 @@ repositories {
         // because Srg2Source needs an eclipse dependency.
         name = "eclipse"
     }
-    jcenter() // get as many deps from here as possible
     mavenCentral()
 
     // because SS and its snapshot
@@ -84,28 +81,29 @@ configurations {
 }
 
 dependencies {
-    compile(gradleApi())
+    implementation(gradleApi())
 
     // moved to the beginning to be the overrider
     //compile("org.ow2.asm:asm-debug-all:6.0")
-    compile("com.google.guava:guava:31.1-jre")
+    implementation("com.google.guava:guava:31.1-jre")
 
-    compile("net.sf.opencsv:opencsv:2.3") // reading CSVs.. also used by SpecialSource
-    compile("com.cloudbees:diff4j:1.3") // for difing and patching
-    compile("com.github.abrarsyed.jastyle:jAstyle:1.3") // formatting
-    compile("net.sf.trove4j:trove4j:3.0.3") // because its awesome.
+    implementation("net.sf.opencsv:opencsv:2.3") // reading CSVs.. also used by SpecialSource
+    implementation("com.cloudbees:diff4j:1.3") // for difing and patching
+    implementation("com.github.abrarsyed.jastyle:jAstyle:1.3") // formatting
+    implementation("net.sf.trove4j:trove4j:3.0.3") // because its awesome.
 
-    compile("com.github.jponge:lzma-java:1.3") // replaces the LZMA binary
-    compile("com.nothome:javaxdelta:2.0.1") // GDIFF implementation for BinPatches
-    compile("com.google.code.gson:gson:2.9.0") // Used instead of Argo for buuilding changelog.
-    compile("com.github.tony19:named-regexp:0.2.6") // 1.7 Named regexp features
-    compile("net.minecraftforge:forgeflower:1.0.342-SNAPSHOT") // Fernflower Forge edition
+    implementation("com.github.jponge:lzma-java:1.3") // replaces the LZMA binary
+    implementation("com.nothome:javaxdelta:2.0.1") // GDIFF implementation for BinPatches
+    implementation("com.google.code.gson:gson:2.9.0") // Used instead of Argo for buuilding changelog.
+    implementation("org.apache.commons:commons-compress:1.26.0") // Pack200 support for Java 14+
+    implementation("com.github.tony19:named-regexp:0.2.6") // 1.7 Named regexp features
+    implementation("net.minecraftforge:forgeflower:1.0.342-SNAPSHOT") // Fernflower Forge edition
 
     shade("net.md-5:SpecialSource:1.11.0") // deobf and reobf
 
     // because curse
-    compile("org.apache.httpcomponents:httpclient:4.5.13")
-    compile("org.apache.httpcomponents:httpmime:4.5.13")
+    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("org.apache.httpcomponents:httpmime:4.5.13")
 
     // mcp stuff
     shade("de.oceanlabs.mcp:RetroGuard:3.6.6")
@@ -143,8 +141,9 @@ dependencies {
        exclude(group = "org.ow2.asm")
     }
 
-    //compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.3-2")
-    testCompile("junit:junit:4.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("junit:junit:4.13.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 val wrapper by tasks.getting(Wrapper::class) {
@@ -168,6 +167,7 @@ val compileJava by tasks.getting(JavaCompile::class) {
 }
 
 val processResources by tasks.getting(Copy::class) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     from(sourceSets.main.get().resources.srcDirs) {
         include("forgegradle.version.txt")
         expand(mutableMapOf("version" to project.version))
@@ -183,8 +183,11 @@ open class  PatchJDTClasses : DefaultTask() {
         val COMPILATION_UNIT_RESOLVER = "org/eclipse/jdt/core/dom/CompilationUnitResolver"
         val RANGE_EXTRACTOR = "net/minecraftforge/srg2source/ast/RangeExtractor"
     }
+    @get:Internal
     val RESOLVE_METHOD = "resolve([Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Lorg/eclipse/jdt/core/dom/FileASTRequestor;ILjava/util/Map;I)V"
+    @get:Internal
     val GET_CONTENTS = "org/eclipse/jdt/internal/compiler/util/Util.getFileCharContent(Ljava/io/File;Ljava/lang/String;)[C"
+    @get:Internal
     val HOOK_DESC_RESOLVE = "(Ljava/lang/String;Ljava/lang/String;)[C"
 
     @Input var targets = mutableSetOf<String>()
@@ -330,9 +333,11 @@ val javadoc by tasks.getting(Javadoc::class) {
     // linked javadoc urls.. why not...
 
     val options = options as StandardJavadocDocletOptions
-    options.links("https://gradle.org/docs/current/javadoc/")
-    options.links("http://docs.guava-libraries.googlecode.com/git-history/v18.0/javadoc")
-    options.links("http://asm.ow2.org/asm50/javadoc/user/")
+    options.addStringOption("Xdoclint:none", "-quiet")
+    options.links("https://docs.gradle.org/current/javadoc/")
+    // Guava javadoc link is no longer available
+    // options.links("http://docs.guava-libraries.googlecode.com/git-history/v18.0/javadoc")
+    options.links("https://asm.ow2.io/javadoc/")
 }
 
 @Suppress("UnstableApiUsage")
@@ -351,33 +356,8 @@ val test by tasks.getting(Test::class) {
         exclude("**/ExtensionMcpMappingTest*")
 }
 
-fun Project.license(configure: nl.javadude.gradle.plugins.license.LicenseExtension.() -> Unit): Unit =
-    (this as ExtensionAware).extensions.configure("license", configure)
 fun nl.javadude.gradle.plugins.license.LicenseExtension.ext(configure: ExtraPropertiesExtension.()->Unit): Unit =
     (this as ExtensionAware).extensions.configure("ext", configure)
-
-license {
-    ext {
-        this["description"] = "A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins."
-        this["year"] = "2020-" + Calendar.getInstance().get(Calendar.YEAR)
-        this["fullname"] = "anatawa12 and other contributors"
-    }
-    header = rootProject.file("HEADER")
-    include("**net/minecraftforge/gradle/**/*.java")
-    excludes (listOf(
-        "**net/minecraftforge/gradle/util/ZipFileTree.java",
-        "**net/minecraftforge/gradle/util/json/version/*",
-        "**net/minecraftforge/gradle/util/patching/Base64.java",
-        "**net/minecraftforge/gradle/util/patching/ContextualPatch.java",
-        "**net/minecraftforge/gradle/ArchiveTaskHelper.java",
-        "**net/minecraftforge/gradle/GradleVersionUtils.java"
-    ))
-    ignoreFailures = false
-    strictCheck = true
-    mapping(mapOf(
-        "java" to "SLASHSTAR_STYLE"
-    ))
-}
 
 publishing {
     publications {
@@ -385,7 +365,7 @@ publishing {
             from(components["java"])
 
             pom {
-                name.set(project.base.archivesBaseName)
+                name.set(project.base.archivesName.get())
                 description.set("Gradle plugin for Forge")
                 url.set("https://github.com/anatawa12/ForgeGradle-2.3")
 
@@ -424,6 +404,12 @@ publishing {
                     developer {
                         id.set("anatawa12")
                         name.set("anatawa12")
+                        roles.set(setOf("developer"))
+                    }
+
+                    developer {
+                        id.set("LuxinfineTeam")
+                        name.set("LuxinfineTeam")
                         roles.set(setOf("developer"))
                     }
                 }

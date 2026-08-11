@@ -36,8 +36,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
-import java.util.jar.Pack200.Packer;
+import org.apache.commons.compress.java.util.jar.Pack200;
+import org.apache.commons.compress.java.util.jar.Pack200.Packer;
 
 import lzma.streams.LzmaOutputStream;
 

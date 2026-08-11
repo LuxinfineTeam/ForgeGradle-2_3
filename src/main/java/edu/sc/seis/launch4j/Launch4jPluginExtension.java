@@ -5,8 +5,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
+import net.minecraftforge.gradle.JavaExtensionHelper;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.JavaPluginConvention;
 
 
 public class Launch4jPluginExtension implements Serializable
@@ -62,15 +62,10 @@ public class Launch4jPluginExtension implements Serializable
     {
         outfile = project.getName()+".exe";
         version = (String)project.getVersion();
-        
-        JavaPluginConvention javaConv = (JavaPluginConvention)project.getConvention().getPlugins().get("java");
-        if (javaConv != null)
-        {
-            jreMinVersion = javaConv.getTargetCompatibility().toString();
-            if (JAVA_VERSION_REGEX.matcher(jreMinVersion).matches())
-            {
-                jreMinVersion = jreMinVersion + ".0";
-            }
+
+        jreMinVersion = JavaExtensionHelper.getTargetCompatibility(project).toString();
+        if (JAVA_VERSION_REGEX.matcher(jreMinVersion).matches()) {
+            jreMinVersion = jreMinVersion + ".0";
         }
     }
 

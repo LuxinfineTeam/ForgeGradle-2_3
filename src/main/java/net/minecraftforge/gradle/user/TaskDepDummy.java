@@ -29,7 +29,9 @@ import java.util.jar.JarOutputStream;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
+@DisableCachingByDefault(because = "Legacy dummy task")
 public class TaskDepDummy extends DefaultTask
 {
     private Object outputFile;

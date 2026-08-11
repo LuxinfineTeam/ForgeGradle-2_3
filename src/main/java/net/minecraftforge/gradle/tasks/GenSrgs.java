@@ -42,7 +42,10 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.objectweb.asm.Type;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -54,14 +57,15 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class GenSrgs extends CachedTask
 {
     //@formatter:off
-    @InputFile private DelayedFile inSrg;
-    @InputFile private DelayedFile inExc;
-    @InputFile private DelayedFile inStatics;
-    @InputFile private DelayedFile methodsCsv;
-    @InputFile private DelayedFile fieldsCsv;
+    @InputFile @PathSensitive(PathSensitivity.NONE) private DelayedFile inSrg;
+    @InputFile @PathSensitive(PathSensitivity.NONE) private DelayedFile inExc;
+    @InputFile @PathSensitive(PathSensitivity.NONE) private DelayedFile inStatics;
+    @InputFile @PathSensitive(PathSensitivity.NONE) private DelayedFile methodsCsv;
+    @InputFile @PathSensitive(PathSensitivity.NONE) private DelayedFile fieldsCsv;
     @Cached @OutputFile private DelayedFile notchToSrg;
     @Cached @OutputFile private DelayedFile notchToMcp;
     @Cached @OutputFile private DelayedFile mcpToNotch;
@@ -72,8 +76,10 @@ public class GenSrgs extends CachedTask
     //@formatter:on
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     private final LinkedList<File> extraExcs = new LinkedList<File>();
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     private final LinkedList<File> extraSrgs = new LinkedList<File>();
 
     @TaskAction

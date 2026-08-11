@@ -30,8 +30,10 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.minecraftforge.gradle.util.ReflectionUtil;
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
@@ -43,6 +45,8 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ModuleVersionIdentifier;
+import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.Configuration.State;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
@@ -434,13 +438,16 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             return;
         }
         // This adds all of the dependencies of FG
-        deps.add(CONFIG_FFI_DEPS, project.files(buildscriptClasspath.getResolvedConfiguration().getFiles(new Spec<Dependency>() {
-            @Override
-            public boolean isSatisfiedBy(Dependency element)
-            {
-                return element.contentEquals(fgDep);
+        Set<File> fgFiles = new HashSet<>();
+        for (ResolvedArtifact artifact : buildscriptClasspath.getResolvedConfiguration().getResolvedArtifacts()) {
+            ModuleVersionIdentifier id = artifact.getModuleVersion().getId();
+            if (fgDep.getGroup().equals(id.getGroup()) &&
+                fgDep.getName().equals(id.getName()) &&
+                fgDep.getVersion().equals(id.getVersion())) {
+                fgFiles.add(artifact.getFile());
             }
-        })));
+        }
+        deps.add(CONFIG_FFI_DEPS, project.files(fgFiles));
         // And this adds the groovy dep. FFI shouldn't need Gradle.
         deps.add(CONFIG_FFI_DEPS, deps.localGroovy());
     }

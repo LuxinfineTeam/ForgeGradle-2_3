@@ -43,6 +43,7 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.OutputFiles;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
@@ -52,6 +53,7 @@ import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 
+@DisableCachingByDefault(because = "Downloads external resources from Crowdin")
 public class CrowdinDownload extends DefaultTask
 {
     @Input

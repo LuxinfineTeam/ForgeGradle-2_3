@@ -37,7 +37,9 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class Download extends CachedTask
 {
     @Input

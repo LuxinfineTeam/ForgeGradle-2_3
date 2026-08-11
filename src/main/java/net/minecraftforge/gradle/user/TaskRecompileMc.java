@@ -41,19 +41,25 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "Recompilation task with complex dependencies")
 public class TaskRecompileMc extends CachedTask
 {
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object inSources;
 
     @Optional
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object inResources;
 
     @Input
@@ -103,7 +109,11 @@ public class TaskRecompileMc extends CachedTask
 
     private static String getExtPath()
     {
+        // java.ext.dirs was removed in Java 9+, return empty string for modern Java
         String currentExtDirs = System.getProperty("java.ext.dirs");
+        if (currentExtDirs == null) {
+            return "";
+        }
         String newExtDirs = "";
         String[] parts = currentExtDirs.split(File.pathSeparator);
         if (parts.length > 0) {
@@ -117,7 +127,9 @@ public class TaskRecompileMc extends CachedTask
                 }
             }
         }
-        System.setProperty("java.ext.dirs", newExtDirs);
+        if (currentExtDirs != null) {
+            System.setProperty("java.ext.dirs", newExtDirs);
+        }
         return newExtDirs;
     }
 

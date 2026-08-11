@@ -43,13 +43,18 @@ import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
+import org.gradle.work.DisableCachingByDefault;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class SplitJarTask extends CachedTask implements PatternFilterable
 {
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     private Object     inJar;
 
     private PatternSet pattern = new PatternSet();
@@ -121,6 +126,7 @@ public class SplitJarTask extends CachedTask implements PatternFilterable
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public Provider<FileCollection> getInputFiles() {
         return getProject().provider(() -> getProject().zipTree(getInJar()).matching(pattern));
     }

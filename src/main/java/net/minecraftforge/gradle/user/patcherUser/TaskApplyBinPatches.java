@@ -33,7 +33,7 @@ import java.util.HashSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Pack200;
+import org.apache.commons.compress.java.util.jar.Pack200;
 import java.util.regex.Pattern;
 import java.util.zip.Adler32;
 import java.util.zip.ZipEntry;
@@ -43,8 +43,11 @@ import java.util.zip.ZipOutputStream;
 
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 import com.google.common.base.Joiner;
@@ -57,14 +60,20 @@ import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
+import org.gradle.work.DisableCachingByDefault;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class TaskApplyBinPatches extends CachedTask
 {
     //@formatter:off
-    @InputFile  Object inJar;
-                Object classesJar;
-                Object resourcesJar;
-    @InputFile  Object patches;
+    @InputFile
+    @Classpath
+    Object inJar;
+    Object classesJar;
+    Object resourcesJar;
+    @InputFile
+    @PathSensitive(PathSensitivity.NONE)
+    Object patches;
     //@formatter:on
 
     @OutputFile
@@ -285,6 +294,7 @@ public class TaskApplyBinPatches extends CachedTask
     }
 
     @InputFile
+    @Classpath
     public File getClassJar()
     {
         return getProject().file(classesJar);
@@ -296,6 +306,7 @@ public class TaskApplyBinPatches extends CachedTask
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     public File getResourceJar()
     {
         return getProject().file(resourcesJar);

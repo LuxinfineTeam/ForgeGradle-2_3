@@ -5,6 +5,7 @@ import groovy.lang.Closure;
 import java.io.File;
 import java.util.HashMap;
 
+import net.minecraftforge.gradle.JavaExecSpecHelper;
 import net.minecraftforge.gradle.common.Constants;
 import net.minecraftforge.gradle.tasks.EtagDownloadTask;
 import net.minecraftforge.gradle.tasks.ExtractTask;
@@ -163,7 +164,7 @@ public class Launch4jPlugin implements Plugin<Project>
             {
                 Launch4jPluginExtension ext = ((Launch4jPluginExtension) task.getProject().getExtensions().getByName(Launch4jPlugin.LAUNCH4J_CONFIGURATION_NAME));
 
-                task.setMain("net.sf.launch4j.Main");
+                JavaExecSpecHelper.setMainClass(task, "net.sf.launch4j.Main");
                 task.args(project.getBuildDir() + "/" + ext.getOutputDir() + "/" + ext.getXmlFileName());
                 task.setWorkingDir(project.file(ext.getChdir()));
                 task.setClasspath(project.fileTree(launch4JDir));

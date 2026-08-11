@@ -34,10 +34,12 @@ import java.util.jar.Manifest;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -45,6 +47,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "Legacy access transformer extraction task")
 public class TaskExtractDepAts extends DefaultTask
 {
     @Input
@@ -58,7 +61,7 @@ public class TaskExtractDepAts extends DefaultTask
         FileCollection col = getCollections();
         File outputDir = getOutputDir();
         outputDir.mkdirs(); // make sur eit exists
-        
+
         // make a list of things to delete...
         List<File> toDelete = Lists.newArrayList(outputDir.listFiles(new FileFilter() {
             @Override
@@ -104,7 +107,7 @@ public class TaskExtractDepAts extends DefaultTask
                 }
             }
         }
-        
+
         // remove the files that shouldnt be there...
         for (File f : toDelete)
         {
@@ -117,6 +120,7 @@ public class TaskExtractDepAts extends DefaultTask
     }
 
     @InputFiles
+    @Classpath
     public FileCollection getCollections()
     {
     	List<Configuration> configs = Lists.newArrayListWithCapacity(configurations.size());

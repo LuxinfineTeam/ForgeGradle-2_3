@@ -33,8 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 
 import net.minecraftforge.gradle.common.Constants;
 
@@ -42,12 +41,14 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+@DisableCachingByDefault(because = "Fetches dynamic data from Jenkins server")
 public class JenkinsChangelog extends DefaultTask
 {
     //@formatter:off
@@ -71,7 +72,7 @@ public class JenkinsChangelog extends DefaultTask
         if (getAuthName() != null && getAuthPassword() != null)
         {
             String raw = getAuthName() + ":" + getAuthPassword();
-            auth = "Basic " + DatatypeConverter.printBase64Binary(raw.getBytes());
+            auth = "Basic " + Base64.getEncoder().encodeToString(raw.getBytes());
         }
 
         List<Map<String, Object>> builds = getBuildInfo();

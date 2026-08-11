@@ -38,11 +38,15 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
+import org.gradle.api.tasks.UntrackedTask;
 
+@UntrackedTask(because = "Abstract base class for jar editing tasks")
 public abstract class AbstractEditJarTask extends CachedTask
 {
     private Object inJar;
@@ -262,6 +266,7 @@ public abstract class AbstractEditJarTask extends CachedTask
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     public File getInJar()
     {
         return getProject().file(inJar);

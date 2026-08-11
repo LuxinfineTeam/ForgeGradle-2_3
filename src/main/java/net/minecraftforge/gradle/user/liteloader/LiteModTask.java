@@ -33,12 +33,13 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.util.ConfigureUtil;
+import org.gradle.work.DisableCachingByDefault;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+@DisableCachingByDefault(because = "Generates dynamic build numbers that should not be cached")
 public class LiteModTask extends DefaultTask
 {
     private String buildNumber;
@@ -107,7 +108,9 @@ public class LiteModTask extends DefaultTask
     
     public void json(Closure<?> configureClosure) throws IOException
     {
-        ConfigureUtil.configure(configureClosure, this.getJson());
+        configureClosure.setDelegate(this.getJson());
+        configureClosure.setResolveStrategy(Closure.DELEGATE_FIRST);
+        configureClosure.call(this.getJson());
     }
 
     @Input

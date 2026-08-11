@@ -40,15 +40,20 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternSet;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "Legacy task without caching support")
 public class TaskSourceCopy extends DefaultTask
 {
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     SourceDirectorySet      source;
 
     @Input

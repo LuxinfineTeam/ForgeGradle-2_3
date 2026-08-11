@@ -29,7 +29,10 @@ import java.util.zip.ZipFile;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
@@ -41,11 +44,13 @@ import net.minecraftforge.gradle.util.AnnotationUtils;
 import net.minecraftforge.gradle.util.AnnotationUtils.ASMInfo;
 import net.minecraftforge.gradle.util.AnnotationUtils.Annotation;
 
+@DisableCachingByDefault(because = "Simple extraction task without caching support")
 public class TaskExtractAnnotationsText extends DefaultTask
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     private Object jar;
     @OutputFile
     private Object output;

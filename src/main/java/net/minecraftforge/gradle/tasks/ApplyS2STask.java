@@ -42,6 +42,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.*;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -50,6 +51,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "Legacy source remapping task without caching support")
 public class ApplyS2STask extends DefaultTask
 {
     private final List<Object> srg = new LinkedList<Object>();
@@ -57,10 +59,12 @@ public class ApplyS2STask extends DefaultTask
     private final List<Object> exc = new LinkedList<Object>();
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object rangeMap;
 
     @Optional
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object excModifiers;
 
     @Input
@@ -284,6 +288,7 @@ public class ApplyS2STask extends DefaultTask
     }
 
     @InputFiles @SkipWhenEmpty
+    @PathSensitive(PathSensitivity.RELATIVE)
     public FileCollection getSources()
     {
         FileCollection collection = null;
@@ -350,6 +355,7 @@ public class ApplyS2STask extends DefaultTask
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
     public FileCollection getSrgs()
     {
         return getProject().files(srg);
@@ -371,6 +377,7 @@ public class ApplyS2STask extends DefaultTask
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public FileCollection getExcs()
     {
         return getProject().files(exc);

@@ -32,6 +32,9 @@ import net.minecraftforge.gradle.util.mcp.JavadocAdder;
 
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.work.DisableCachingByDefault;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -41,6 +44,7 @@ import com.google.common.collect.Maps;
 import com.google.code.regexp.Matcher;
 import com.google.code.regexp.Pattern;
 
+@DisableCachingByDefault(because = "Abstract task subclass handles caching")
 public class RemapSources extends AbstractEditJarTask
 {
     private DelayedFile               methodsCsv;
@@ -184,6 +188,7 @@ public class RemapSources extends AbstractEditJarTask
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public File getMethodsCsv()
     {
         return methodsCsv.call();
@@ -195,6 +200,7 @@ public class RemapSources extends AbstractEditJarTask
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public File getFieldsCsv()
     {
         return fieldsCsv.call();
@@ -206,6 +212,7 @@ public class RemapSources extends AbstractEditJarTask
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public File getParamsCsv()
     {
         return paramsCsv.call();

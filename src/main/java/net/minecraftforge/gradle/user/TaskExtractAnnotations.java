@@ -35,6 +35,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
@@ -46,6 +47,7 @@ import net.minecraftforge.gradle.util.AnnotationUtils;
 import net.minecraftforge.gradle.util.AnnotationUtils.ASMInfo;
 import net.minecraftforge.gradle.util.AnnotationUtils.Annotation;
 
+@DisableCachingByDefault(because = "Legacy annotation extraction task")
 public class TaskExtractAnnotations extends DefaultTask
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();

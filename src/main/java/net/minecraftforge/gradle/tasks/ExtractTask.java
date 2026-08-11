@@ -41,14 +41,19 @@ import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
+import org.gradle.work.DisableCachingByDefault;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class ExtractTask extends CachedTask implements PatternFilterable
 {
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     private LinkedHashSet<Object> sourcePaths      = new LinkedHashSet<Object>();
 
     private PatternSet            patternSet       = new PatternSet();
@@ -116,6 +121,7 @@ public class ExtractTask extends CachedTask implements PatternFilterable
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public Provider<FileCollection> getInputFiles() {
         return getProject().provider(() -> StreamSupport.stream(getSourcePaths().spliterator(), false)
                 .map(it -> (FileCollection)getProject().zipTree(it).matching(patternSet))

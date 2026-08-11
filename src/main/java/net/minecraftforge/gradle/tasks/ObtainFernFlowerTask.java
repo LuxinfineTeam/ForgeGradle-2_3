@@ -37,10 +37,12 @@ import net.minecraftforge.gradle.util.delayed.DelayedString;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class ObtainFernFlowerTask extends CachedTask
 {
     @Input

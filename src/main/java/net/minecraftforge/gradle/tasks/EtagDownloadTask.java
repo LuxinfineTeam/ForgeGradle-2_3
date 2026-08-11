@@ -33,6 +33,7 @@ import net.minecraftforge.gradle.common.Constants;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
@@ -40,10 +41,12 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+import org.gradle.api.tasks.UntrackedTask;
 
+@UntrackedTask(because = "Downloads files from external URLs")
 public class EtagDownloadTask extends DefaultTask
 {
-    @Input
+    @Internal
     private Object url;
     @OutputFile
     private Object file;
@@ -145,6 +148,16 @@ public class EtagDownloadTask extends DefaultTask
         }
 
         return new URL(url.toString());
+    }
+
+    @Input
+    public String getUrlString()
+    {
+        while (url instanceof Closure)
+        {
+            url = ((Closure) url).call();
+        }
+        return url.toString();
     }
 
     public void setUrl(Object url)

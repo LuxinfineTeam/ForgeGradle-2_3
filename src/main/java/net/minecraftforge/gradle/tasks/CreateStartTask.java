@@ -46,6 +46,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.util.GradleVersion;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -56,6 +57,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class CreateStartTask extends CachedTask
 {
     HashMap<String, String>     resources    = Maps.newHashMap();

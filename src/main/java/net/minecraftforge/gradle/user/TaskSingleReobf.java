@@ -42,7 +42,10 @@ import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -99,6 +102,7 @@ import net.minecraftforge.gradle.util.mcp.ReobfExceptor;
  * </pre>
  *
  */
+@DisableCachingByDefault(because = "Reobfuscation task with complex dependencies and side effects")
 public class TaskSingleReobf extends DefaultTask
 {
     private Object                 jar;
@@ -298,6 +302,7 @@ public class TaskSingleReobf extends DefaultTask
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
     public FileCollection getClasspath()
     {
         return classpath;
@@ -312,6 +317,7 @@ public class TaskSingleReobf extends DefaultTask
     // --------------------------------------------
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public File getPrimarySrg()
     {
         if (primarySrg == null)
@@ -330,6 +336,7 @@ public class TaskSingleReobf extends DefaultTask
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.NONE)
     public FileCollection getSecondarySrgFiles()
     {
         List<File> files = new ArrayList<File>(secondarySrgFiles.size());
@@ -381,6 +388,7 @@ public class TaskSingleReobf extends DefaultTask
     // --------------------------------------------
 
     @InputFile @Optional
+    @PathSensitive(PathSensitivity.NONE)
     public File getFieldCsv()
     {
         return fieldCsv == null ? null : getProject().file(fieldCsv);
@@ -392,6 +400,7 @@ public class TaskSingleReobf extends DefaultTask
     }
 
     @InputFile @Optional
+    @PathSensitive(PathSensitivity.NONE)
     public File getMethodCsv()
     {
         return methodCsv == null ? null : getProject().file(methodCsv);
@@ -403,6 +412,7 @@ public class TaskSingleReobf extends DefaultTask
     }
 
     @InputFile @Optional
+    @PathSensitive(PathSensitivity.NONE)
     public File getExceptorCfg()
     {
         return exceptorCfg == null ? null : getProject().file(exceptorCfg);
@@ -414,6 +424,7 @@ public class TaskSingleReobf extends DefaultTask
     }
 
     @InputFile @Optional
+    @PathSensitive(PathSensitivity.NONE)
     public File getDeobfFile()
     {
         return deobfFile == null ? null : getProject().file(deobfFile);
@@ -425,6 +436,7 @@ public class TaskSingleReobf extends DefaultTask
     }
 
     @InputFile @Optional
+    @PathSensitive(PathSensitivity.NONE)
     public File getRecompFile()
     {
         return recompFile == null ? null : getProject().file(recompFile);

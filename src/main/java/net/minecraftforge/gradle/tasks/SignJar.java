@@ -44,9 +44,12 @@ import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -55,6 +58,7 @@ import com.google.common.io.ByteStreams;
 import groovy.lang.Closure;
 import groovy.util.MapEntry;
 
+@DisableCachingByDefault(because = "Signs JARs with external keystore")
 public class SignJar extends DefaultTask implements PatternFilterable
 {
     //@formatter:off
@@ -63,7 +67,9 @@ public class SignJar extends DefaultTask implements PatternFilterable
     @Input      private Object     storePass;
     @Input      private Object     keyPass;
     @Input      private Object     keyStore;
-    @InputFile  private Object     inputFile;
+    @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
+    private Object     inputFile;
     @OutputFile private Object     outputFile;
     //@formatter:on
 
@@ -190,6 +196,7 @@ public class SignJar extends DefaultTask implements PatternFilterable
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public Provider<FileCollection> getInputFiles() {
         return getProject().provider(() -> getProject().zipTree(inputFile).matching(patternSet));
     }

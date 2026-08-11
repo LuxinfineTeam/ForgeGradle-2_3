@@ -37,7 +37,10 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.ClassRemapper;
@@ -48,15 +51,19 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.collect.Maps;
 import com.google.common.io.ByteStreams;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class TaskSingleDeobfBin extends CachedTask
 {
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object methodCsv;
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     private Object fieldCsv;
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     private Object inJar;
 
     @Cached

@@ -33,9 +33,9 @@ import static net.minecraftforge.gradle.user.patcherUser.PatcherUserConstants.*;
 
 import java.io.File;
 
+import net.minecraftforge.gradle.JavaExtensionHelper;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 
 import com.google.common.collect.ImmutableMap;
@@ -48,6 +48,7 @@ import net.minecraftforge.gradle.tasks.RemapSources;
 import net.minecraftforge.gradle.user.TaskSingleReobf;
 import net.minecraftforge.gradle.user.UserBaseExtension;
 import net.minecraftforge.gradle.user.UserBasePlugin;
+import org.gradle.api.tasks.SourceSetContainer;
 
 public abstract class PatcherUserBasePlugin<T extends UserBaseExtension> extends UserBasePlugin<T>
 {
@@ -60,9 +61,9 @@ public abstract class PatcherUserBasePlugin<T extends UserBaseExtension> extends
         String local = DIR_LOCAL_CACHE + "/" + REPLACE_API_NAME + "%s-" + REPLACE_API_VERSION + "-PROJECT(" + project.getName() + ")";
 
         // grab ATs from resource dirs
-        JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
-        SourceSet main = javaConv.getSourceSets().getByName("main");
-        SourceSet api = javaConv.getSourceSets().getByName("api");
+        SourceSetContainer sourceSet = JavaExtensionHelper.getSourceSet(project);
+        SourceSet main = sourceSet.getByName("main");
+        SourceSet api = sourceSet.getByName("api");
 
         getExtension().atSources(main, api);
 

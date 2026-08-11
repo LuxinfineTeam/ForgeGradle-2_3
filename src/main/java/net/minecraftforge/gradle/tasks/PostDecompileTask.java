@@ -50,6 +50,9 @@ import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
+import org.gradle.work.DisableCachingByDefault;
 
 import com.github.abrarsyed.jastyle.ASFormatter;
 import com.github.abrarsyed.jastyle.OptParser;
@@ -62,6 +65,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 
+@DisableCachingByDefault(because = "Abstract base class delegates caching to subclasses")
 public class PostDecompileTask extends AbstractEditJarTask
 {
     private Object                       patchDir;
@@ -283,6 +287,7 @@ public class PostDecompileTask extends AbstractEditJarTask
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.NONE)
     public File getAstyleConfig()
     {
         return getProject().file(astyleConfig);
@@ -294,6 +299,7 @@ public class PostDecompileTask extends AbstractEditJarTask
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public FileCollection getPatches()
     {
         return getProject().fileTree(patchDir);
@@ -305,6 +311,7 @@ public class PostDecompileTask extends AbstractEditJarTask
     }
 
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     public FileCollection getInjects()
     {
         return getProject().fileTree(injectDir);

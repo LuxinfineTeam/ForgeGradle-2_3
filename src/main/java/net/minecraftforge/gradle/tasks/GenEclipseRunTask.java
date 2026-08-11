@@ -41,12 +41,14 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
+@DisableCachingByDefault(because = "Generates IDE-specific configuration files")
 public class GenEclipseRunTask extends DefaultTask
 {
     //@formatter:off

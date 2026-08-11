@@ -16,9 +16,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.UntrackedTask;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@UntrackedTask(because = "Generates XML configuration file")
 public class CreateLaunch4jXMLTask extends DefaultTask
 {
     @OutputFile

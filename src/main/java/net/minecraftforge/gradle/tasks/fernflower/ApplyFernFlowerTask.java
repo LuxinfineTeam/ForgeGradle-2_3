@@ -23,15 +23,21 @@ package net.minecraftforge.gradle.tasks.fernflower;
 import com.google.common.collect.ImmutableList;
 import groovy.lang.Closure;
 import net.minecraftforge.gradle.common.Constants;
+import net.minecraftforge.gradle.JavaExecSpecHelper;
+import net.minecraftforge.gradle.ExecHelper;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.PathSensitive;
+import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaExecSpec;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
@@ -43,6 +49,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+@DisableCachingByDefault(because = "CachedTask handles caching internally")
 public class ApplyFernFlowerTask extends CachedTask {
 
     // 2.5 GB
@@ -50,6 +57,7 @@ public class ApplyFernFlowerTask extends CachedTask {
     private static final String FORK_FLAG = "forkDecompile";
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     Object inJar;
 
     @Cached
@@ -130,13 +138,13 @@ public class ApplyFernFlowerTask extends CachedTask {
 
     private void runForkedFernFlower(final File data)
     {
-        ExecResult result = getProject().javaexec(new Action<JavaExecSpec>() {
+        ExecResult result = ExecHelper.javaexec(getProject(), new Action<JavaExecSpec>() {
 
             @Override
             public void execute(JavaExecSpec exec)
             {
                 exec.classpath(forkedClasspath);
-                exec.setMain(FernFlowerInvoker.class.getName());
+                JavaExecSpecHelper.setMainClass(exec, FernFlowerInvoker.class.getName());
                 exec.setJvmArgs(ImmutableList.of("-Xmx3G"));
                 // pass the temporary file
                 exec.args(data);
@@ -171,6 +179,7 @@ public class ApplyFernFlowerTask extends CachedTask {
     }
 
     @InputFiles
+    @Classpath
     public FileCollection getClasspath()
     {
         return classpath;
@@ -182,6 +191,7 @@ public class ApplyFernFlowerTask extends CachedTask {
     }
 
     @InputFiles
+    @Classpath
     public FileCollection getForkedClasspath()
     {
         return forkedClasspath;
