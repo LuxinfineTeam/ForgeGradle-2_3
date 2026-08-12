@@ -305,7 +305,8 @@ public abstract class BaseExtension
                     // right channel, but wrong mc
                     if (rightChannel && !rightMc)
                     {
-                        project.getLogger().warn("This mapping '" + getMappings() + "' was designed for MC " + mcEntry.getKey() + "! Use at your own peril.");
+                        //Бесполезный варн, на любую версию триггерится, лишний шум в логе
+                        //project.getLogger().warn("This mapping '" + getMappings() + "' was designed for MC " + mcEntry.getKey() + "! Use at your own peril.");
                         replacer.putReplacement(Constants.REPLACE_MCP_MCVERSION, mcEntry.getKey()); // set MC version
                         return;
                         // throw new GradleConfigurationException("This mapping '" + getMappings() + "' exists only for MC " + mcEntry.getKey() + "!");

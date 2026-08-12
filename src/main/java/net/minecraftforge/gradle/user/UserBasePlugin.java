@@ -968,6 +968,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
 
     protected void mapConfigurations()
     {
+        //Нужно переписать под новую версию Gradle, но пока просто отключено. Возможно потом...
 //        if (project.getPlugins().hasPlugin("maven"))
 //        {
 //            MavenPluginConvention mavenConv = (MavenPluginConvention) project.getConvention().getPlugins().get("maven");
