@@ -19,7 +19,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath('com.github.LuxinfineTeam.ForgeGradle-2_3:ForgeGradle:main-SNAPSHOT') {
+        classpath('com.github.LuxinfineTeam:ForgeGradle-2_3:main-SNAPSHOT') {
             changing = true
         }
     }
