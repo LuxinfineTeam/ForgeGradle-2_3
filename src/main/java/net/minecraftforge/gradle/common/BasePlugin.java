@@ -873,7 +873,8 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         DependencyHandler handler = project.getDependencies();
 
         // actual dependencies
-        if (project.getConfigurations().getByName(CONFIG_MC_DEPS).getState() == State.UNRESOLVED)
+        Configuration mcDepsConfig = project.getConfigurations().getByName(CONFIG_MC_DEPS);
+        if (mcDepsConfig.getState() == State.UNRESOLVED)
         {
             for (net.minecraftforge.gradle.util.json.version.Library lib : version.getLibraries())
             {
@@ -889,7 +890,15 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                         configName = CONFIG_MC_DEPS_CLIENT;
                     }
 
-                    handler.add(configName, lib.getArtifactName());
+                    try
+                    {
+                        handler.add(configName, lib.getArtifactName());
+                    }
+                    catch (Exception e)
+                    {
+                        // Configuration might be locked/resolved, skip silently
+                        LOGGER.debug("Could not add dependency " + lib.getArtifactName() + " to " + configName + ": " + e.getMessage());
+                    }
                 }
             }
         }
@@ -897,16 +906,25 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             LOGGER.debug("RESOLVED: " + CONFIG_MC_DEPS);
 
         // the natives
-        if (project.getConfigurations().getByName(CONFIG_NATIVES).getState() == State.UNRESOLVED)
+        Configuration nativesConfig = project.getConfigurations().getByName(CONFIG_NATIVES);
+        if (nativesConfig.getState() == State.UNRESOLVED)
         {
             for (net.minecraftforge.gradle.util.json.version.Library lib : version.getLibraries())
             {
                 if (lib.natives != null)
                 {
-                    if (lib.getArtifactName().contains("java-objc-bridge") && lib.getArtifactName().contains("natives-osx")) //Normal repo bundles this in the mian jar so we need to just use the main jar
-                        handler.add(CONFIG_NATIVES, lib.getArtifactNameSkipNatives());
-                    else
-                        handler.add(CONFIG_NATIVES, lib.getArtifactName());
+                    try
+                    {
+                        if (lib.getArtifactName().contains("java-objc-bridge") && lib.getArtifactName().contains("natives-osx")) //Normal repo bundles this in the mian jar so we need to just use the main jar
+                            handler.add(CONFIG_NATIVES, lib.getArtifactNameSkipNatives());
+                        else
+                            handler.add(CONFIG_NATIVES, lib.getArtifactName());
+                    }
+                    catch (Exception e)
+                    {
+                        // Configuration might be locked/resolved, skip silently
+                        LOGGER.debug("Could not add native dependency " + lib.getArtifactName() + " to " + CONFIG_NATIVES + ": " + e.getMessage());
+                    }
                 }
             }
         }
