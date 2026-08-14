@@ -425,7 +425,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 buildscriptClasspath = settings.getBuildscript().getConfigurations().getByName("classpath");
             }
             fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies()
-                    .matching(element -> element.getName().equals(GROUP_FG)), null);
+                    .matching(element -> element.getName().contains("ForgeGradle")), null);
             if (parent == null) break;
             parent = parent.getParent();
         }
