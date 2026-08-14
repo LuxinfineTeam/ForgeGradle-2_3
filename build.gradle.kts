@@ -96,8 +96,7 @@ dependencies {
     implementation("com.nothome:javaxdelta:2.0.1") // GDIFF implementation for BinPatches
     implementation("com.google.code.gson:gson:2.9.0") // Used instead of Argo for buuilding changelog.
 
-    implementation("org.apache.commons:commons-lang3:3.14.0")
-    implementation("org.apache.commons:commons-compress:1.26.0") // Pack200 support for Java 14+
+    implementation("org.glavo:pack200:0.3.0") // Pack200 support for Java 14+
 
     implementation("com.github.tony19:named-regexp:0.2.6") // 1.7 Named regexp features
     implementation("net.minecraftforge:forgeflower:1.0.342-SNAPSHOT") // Fernflower Forge edition
