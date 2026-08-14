@@ -95,7 +95,10 @@ dependencies {
     implementation("com.github.jponge:lzma-java:1.3") // replaces the LZMA binary
     implementation("com.nothome:javaxdelta:2.0.1") // GDIFF implementation for BinPatches
     implementation("com.google.code.gson:gson:2.9.0") // Used instead of Argo for buuilding changelog.
+
+    implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-compress:1.26.0") // Pack200 support for Java 14+
+
     implementation("com.github.tony19:named-regexp:0.2.6") // 1.7 Named regexp features
     implementation("net.minecraftforge:forgeflower:1.0.342-SNAPSHOT") // Fernflower Forge edition
 
@@ -138,7 +141,7 @@ dependencies {
     //Stuff used in the GradleStart classes
     compileOnly("com.mojang:authlib:1.5.16")
     compileOnly("net.minecraft:launchwrapper:1.11"){
-       exclude(group = "org.ow2.asm")
+        exclude(group = "org.ow2.asm")
     }
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
@@ -161,9 +164,9 @@ sourceSets {
 }
 
 val compileJava by tasks.getting(JavaCompile::class) {
-	options.isDeprecation = true
-	//options.compilerArgs += ["-Werror"]
-	//options.compilerArgs += ["-Werror", "-Xlint:unchecked"]
+    options.isDeprecation = true
+    //options.compilerArgs += ["-Werror"]
+    //options.compilerArgs += ["-Werror", "-Xlint:unchecked"]
 }
 
 val processResources by tasks.getting(Copy::class) {
@@ -229,11 +232,11 @@ open class  PatchJDTClasses : DefaultTask() {
                                     insn as MethodInsnNode
                                     if (GET_CONTENTS == "${insn.owner}.${insn.name}${insn.desc}") {
                                         if (
-                                        resolve.instructions.get(x - 5).opcode == Opcodes.NEW &&
-                                                resolve.instructions.get(x - 4).opcode == Opcodes.DUP &&
-                                                resolve.instructions.get(x - 3).opcode == Opcodes.ALOAD &&
-                                                resolve.instructions.get(x - 2).opcode == Opcodes.INVOKESPECIAL &&
-                                                resolve.instructions.get(x - 1).opcode == Opcodes.ALOAD
+                                            resolve.instructions.get(x - 5).opcode == Opcodes.NEW &&
+                                            resolve.instructions.get(x - 4).opcode == Opcodes.DUP &&
+                                            resolve.instructions.get(x - 3).opcode == Opcodes.ALOAD &&
+                                            resolve.instructions.get(x - 2).opcode == Opcodes.INVOKESPECIAL &&
+                                            resolve.instructions.get(x - 1).opcode == Opcodes.ALOAD
                                         ) {
                                             resolve.instructions.set(resolve.instructions.get(x - 5), InsnNode(Opcodes.NOP)) // NEW File
                                             resolve.instructions.set(resolve.instructions.get(x - 4), InsnNode(Opcodes.NOP)) // DUP

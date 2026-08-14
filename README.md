@@ -28,23 +28,21 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
 version = "1.0"
-archivesBaseName = "MyModName"
+base {
+    archivesName = "MyModName"
+}
 
 minecraft {
     version = "1.12.2-14.23.5.2859"
     mappings = "stable_39"
     useDepAts = true
-}
-
-// Добавляем флаг компилятора, чтобы итоговый билд работал на java8
-tasks.withType(JavaCompile) {
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.compilerArgs.addAll(['--release', '8'])
-    }
 }
 ```
 
