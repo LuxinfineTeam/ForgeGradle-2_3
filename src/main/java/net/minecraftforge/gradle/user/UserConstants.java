@@ -61,7 +61,6 @@ public class UserConstants
     public static final String TASK_REOBF             = "reobfJar";
     public static final String TASK_SRC_JAR           = "sourceJar";
 
-    public static final String TASK_EXTRACT_DEP_ATS   = "extractDependencyATs";
     public static final String TASK_DD_COMPILE        = "deobfCompileDummyTask";
     public static final String TASK_DD_PROVIDED       = "deobfProvidedDummyTask";
 
