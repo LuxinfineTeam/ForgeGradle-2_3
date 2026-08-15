@@ -26,10 +26,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.StandardCopyOption;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.Configuration;
@@ -71,8 +74,6 @@ public class TaskExtractDepAts extends DefaultTask
             }
         }));
 
-        Splitter splitter = Splitter.on(' ');
-
         for (File f : col)
         {
             if (!f.exists() || !f.getName().endsWith("jar"))
@@ -80,28 +81,25 @@ public class TaskExtractDepAts extends DefaultTask
 
             try (JarFile jar = new JarFile(f))
             {
-                Manifest man = jar.getManifest();
+                Enumeration<? extends ZipEntry> entries = jar.entries();
 
-                if (man != null)
-                {
-                    String atString = man.getMainAttributes().getValue("FMLAT");
-                    if (!Strings.isNullOrEmpty(atString))
-                    {
-                        for (String at : splitter.split(atString.trim()))
-                        {
-                            // append _at.cfg just in case its not there already...
-                            // also differentiate the file name, in cas the same At comes from multiple jars.. who knows why...
-                            File outFile = new File(outputDir, at + "_" + Files.getNameWithoutExtension(f.getName()) + "_at.cfg");
-                            toDelete.remove(outFile);
+                //Пересматриваем ВЕСЬ jar, а не только то, что в его манифесте
+                //Некоторые моды загружают _at.cfg программно, например ThermalMods, что ломает логику с проверкой манифеста
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
+                    String entryName = entry.getName();
 
-                            JarEntry entry = jar.getJarEntry("META-INF/" + at);
+                    if (entryName.toLowerCase().endsWith("_at.cfg")) {
+                        String fileName = entryName.substring(0, entryName.length() - "_at.cfg".length());
+                        int lastSep = fileName.lastIndexOf('/');
+                        if (lastSep != -1)
+                            fileName = fileName.substring(lastSep + 1);
 
+                        File outFile = new File(outputDir, fileName + "_" + Files.getNameWithoutExtension(f.getName()) + "_at.cfg");
+                        toDelete.remove(outFile);
 
-                            try (InputStream istream = jar.getInputStream(entry);
-                                 OutputStream ostream = new FileOutputStream(outFile))
-                            {
-                                ByteStreams.copy(istream, ostream);
-                            }
+                        try (InputStream is = jar.getInputStream(entry)) {
+                            java.nio.file.Files.copy(is, outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                         }
                     }
                 }

@@ -104,7 +104,7 @@ class CacheUtil
                 if (obj instanceof String)
                 {
                     hashes.add(Constants.hash((String) obj));
-                    LOGGER.debug(Constants.hash((String) obj) + " " + (String) obj);
+                    LOGGER.debug(Constants.hash((String) obj) + " " + obj);
                 }
                 else if (obj instanceof File)
                 {
@@ -129,10 +129,9 @@ class CacheUtil
                 {
                     PatternSet set = (PatternSet)obj;
                     hashes.add(Constants.hash(
-                            "" +
                             set.isCaseSensitive() + " " +
-                            set.getIncludes().toString() + " " +
-                            set.getExcludes().toString() + " " +
+                                    set.getIncludes() + " " +
+                                    set.getExcludes() + " " +
                             set.getIncludeSpecs().size() + " " +
                             set.getExcludeSpecs().size()
                             ));
@@ -144,6 +143,6 @@ class CacheUtil
             }
         }
 
-        return Joiner.on(Constants.NEWLINE).join(hashes);
+        return String.join(Constants.NEWLINE, hashes);
     }
 }
