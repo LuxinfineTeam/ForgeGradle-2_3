@@ -25,12 +25,15 @@ import static net.minecraftforge.gradle.user.UserConstants.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -757,33 +760,6 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
 
     protected void doDepAtExtraction()
     {
-        TaskExtractDepAts extract = makeTask(TASK_EXTRACT_DEP_ATS, TaskExtractDepAts.class);
-        extract.addCollection("compileClasspath");
-        extract.addCollection(CONFIG_PROVIDED);
-        extract.addCollection(CONFIG_DEOBF_COMPILE);
-        extract.addCollection(CONFIG_DEOBF_PROVIDED);
-        extract.setOutputDir(delayedFile(DIR_DEP_ATS));
-        extract.onlyIf(new Spec<Object>() {
-            @Override
-            public boolean isSatisfiedBy(Object arg0)
-            {
-                return getExtension().isUseDepAts();
-            }
-        });
-        extract.doLast(new Action<Task>() {
-            @Override public void execute(Task task)
-            {
-                DeobfuscateJar binDeobf = (DeobfuscateJar) task.getProject().getTasks().getByName(TASK_DEOBF_BIN);
-                DeobfuscateJar decompDeobf = (DeobfuscateJar) task.getProject().getTasks().getByName(TASK_DEOBF);
-
-                for (File file : task.getProject().fileTree(delayedFile(DIR_DEP_ATS)))
-                {
-                    binDeobf.addAt(file);
-                    decompDeobf.addAt(file);
-                }
-            }
-        });
-
         getExtension().atSource(delayedFile(DIR_DEP_ATS));
     }
 
@@ -1004,7 +980,12 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         decompDeobf.addAts(extAts);
 
         // grab ATs from configured resource dirs
-        boolean addedAts = getExtension().isUseDepAts();
+        boolean addedAts = false;
+
+        if (getExtension().isUseDepAts()) {
+            addedAts = true;
+            extractATsFromDependencies(binDeobf, decompDeobf);
+        }
 
         for (File at : getExtension().getResolvedAccessTransformerSources().filter(AT_SPEC).getFiles())
         {
@@ -1015,6 +996,59 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         }
 
         useLocalCache = useLocalCache || addedAts;
+    }
+
+    private void extractATsFromDependencies(final DeobfuscateJar binDeobf, final DeobfuscateJar decompDeobf) {
+        Set<File> processedJars = new HashSet<>();
+        File atCacheDir = new File(project.getLayout().getBuildDirectory().getAsFile().get(), "at-cache");
+        if (!atCacheDir.exists())
+            atCacheDir.mkdirs();
+
+        // Scan compile configuration for AT files in dependencies
+        try {
+            // Use compileClasspath which is resolvable, not implementation which isn't
+            String configName = project.getConfigurations().findByName("compileClasspath") != null
+                    ? "compileClasspath"
+                    : UserConstants.CONFIG_COMPILE;
+
+            project.getLogger().lifecycle("Scanning configuration '{}' for AccessTransformers in dependencies", configName);
+
+            // Create a recursive copy and make it resolvable to avoid mutating the original
+            Configuration copiedConfig = project.getConfigurations().getByName(configName).copyRecursive();
+            copiedConfig.setCanBeResolved(true);
+
+            for (File dep : copiedConfig.getFiles()) {
+                if (!dep.getName().endsWith(".jar") || !processedJars.add(dep))
+                    continue;
+
+                try (ZipFile zipFile = new ZipFile(dep)) {
+                    Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+                    while (entries.hasMoreElements()) {
+                        ZipEntry entry = entries.nextElement();
+                        String entryName = entry.getName();
+
+                        if (entryName.toLowerCase().endsWith("_at.cfg")) {
+                            // Extract AT file to cache directory
+                            String safeName = dep.getName().replace(".jar", "") + "_" + new File(entryName).getName();
+                            File atFile = new File(atCacheDir, safeName);
+
+                            try (InputStream is = zipFile.getInputStream(entry)) {
+                                Files.copy(is, atFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            }
+
+                            project.getLogger().lifecycle("Found AccessTransformer in dependency " + dep.getName() + ": " + entryName);
+                            binDeobf.addAt(atFile);
+                            decompDeobf.addAt(atFile);
+                        }
+                    }
+                } catch (Exception e) {
+                    project.getLogger().warn("Failed to scan dependency for ATs: {}", dep.getName(), e);
+                }
+            }
+        } catch (Exception e) {
+            project.getLogger().warn("Failed to extract ATs from dependencies", e);
+        }
     }
 
     /**
