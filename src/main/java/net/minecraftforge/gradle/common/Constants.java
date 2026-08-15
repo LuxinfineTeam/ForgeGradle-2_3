@@ -355,7 +355,7 @@ public class Constants
     public static String hash(File file)
     {
         if (!file.exists())
-            return "";
+            return null;
 
         if (file.getPath().endsWith(".zip") || file.getPath().endsWith(".jar"))
             return hashZip(file, HASH_FUNC);
@@ -366,6 +366,9 @@ public class Constants
     public static List<String> hashAll(File file)
     {
         List<String> list = new ArrayList<String>();
+
+        if (!file.exists())
+            return list;
 
         if (file.isDirectory())
         {
@@ -389,6 +392,9 @@ public class Constants
 
     public static String hash(File file, String function)
     {
+        if (!file.exists())
+            return null;
+
         try (InputStream fis = new FileInputStream(file))
         {
             MessageDigest digest = MessageDigest.getInstance(function);
@@ -410,6 +416,9 @@ public class Constants
 
     public static String hashZip(File file, String function)
     {
+        if (!file.exists())
+            return null;
+
         try (ZipInputStream zin = new ZipInputStream(new FileInputStream(file)))
         {
             MessageDigest hasher = MessageDigest.getInstance(function);
