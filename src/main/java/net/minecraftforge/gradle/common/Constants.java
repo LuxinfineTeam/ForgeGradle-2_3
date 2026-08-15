@@ -354,6 +354,9 @@ public class Constants
 
     public static String hash(File file)
     {
+        if (!file.exists())
+            return "";
+
         if (file.getPath().endsWith(".zip") || file.getPath().endsWith(".jar"))
             return hashZip(file, HASH_FUNC);
         else
