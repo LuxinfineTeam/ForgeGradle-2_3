@@ -102,7 +102,7 @@ class TaskExtractExcModifiers extends DefaultTask
 
         public GenerateMapClassAdapter(BufferedWriter writer)
         {
-            super(Opcodes.ASM5);
+            super(Opcodes.ASM9);
             this.writer = writer;
         }
 

@@ -43,7 +43,7 @@ public class AnnotationUtils
     {
         final ASMInfo info = new ASMInfo();
         ClassReader reader = new ClassReader(data);
-        reader.accept(new ClassVisitor(Opcodes.ASM6)
+        reader.accept(new ClassVisitor(Opcodes.ASM9)
         {
             @Override
             public void visit(int version, int access, String name, String signature, String superName, String[] interfaces)
@@ -63,7 +63,7 @@ public class AnnotationUtils
             @Override
             public FieldVisitor visitField(int access, final String name, String desc, String signature, Object value)
             {
-                return new FieldVisitor(Opcodes.ASM6)
+                return new FieldVisitor(Opcodes.ASM9)
                 {
                     @Override
                     public AnnotationVisitor visitAnnotation(String annotationName, boolean runtimeVisible)
@@ -76,7 +76,7 @@ public class AnnotationUtils
             @Override
             public MethodVisitor visitMethod(int access, final String name, final String desc, String signature, String[] exceptions)
             {
-                return new MethodVisitor(Opcodes.ASM6)
+                return new MethodVisitor(Opcodes.ASM9)
                 {
                     @Override
                     public AnnotationVisitor visitAnnotation(String annotationName, boolean runtimeVisible)
@@ -238,7 +238,7 @@ public class AnnotationUtils
 
         public ModAnnotationVisitor(ASMInfo info, Annotation annon)
         {
-            super(Opcodes.ASM6);
+            super(Opcodes.ASM9);
             this.info = info;
             this.anno = annon;
         }

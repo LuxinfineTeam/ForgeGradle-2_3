@@ -62,9 +62,9 @@ compileOnly.extendsFrom(shade)
 configurations {
     all {
         resolutionStrategy {
-            force("org.ow2.asm:asm-commons:6.0")
-            force("org.ow2.asm:asm-tree:6.0")
-            force("org.ow2.asm:asm:6.0")
+            force("org.ow2.asm:asm-commons:9.10.1")
+            force("org.ow2.asm:asm-tree:9.10.1")
+            force("org.ow2.asm:asm:9.10.1")
             // pin eclipse for java 8
             force("org.eclipse.platform:org.eclipse.equinox.common:3.14.100")
             force("org.eclipse.platform:org.eclipse.core.resources:3.14.0")
